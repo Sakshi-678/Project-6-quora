@@ -18,10 +18,11 @@ const isValidObjectId = function (ObjectId) {
 const isValidRequestBody = function (requestBody) {
     return Object.keys(requestBody).length > 0
 }
+
 const registerUser = async (req, res) => {
 
     let data = req.body
-    const { fname, lname, email, phone, password } = data
+    const { fname, lname, email, phone, password, creditScore } = data
 
     if (!isValidRequestBody(data)) {
         return res.status(400).send({ status: false, message: "Invalid request parameters.. Please Provide User Details" })
@@ -35,9 +36,17 @@ const registerUser = async (req, res) => {
     if (!isValid(email)) {
         return res.status(400).send({ status: false, message: "Please Provide email" })
     }
+    if (!isValid(creditScore)) {
+        return res.status(400).send({ status: false, message: "Please Provide creditScore" })
+    }
+    if(creditScore<1){
+        return res.status(400).send({ status: false, message: "creditSCore cannot be negative or 0" })
+    }
+    if(creditScore<500){
+        return res.status(400).send({ status: false, message: "creditSCore cannot be less than 500" })
+    }
     if (phone) {
-
-        if (!(validNumber.test(phone))) {
+            if (!(validNumber.test(phone))) {
             return res.status(400).send({ status: false, message: "Please Provide validNumber " })
         }
     }
@@ -68,6 +77,7 @@ const registerUser = async (req, res) => {
 
 }
 
+//--------------------------------------------------------------------------------------------------------------
 
 const Login = async (req, res) => {
 
@@ -107,6 +117,7 @@ const Login = async (req, res) => {
     }
 
 }
+//------------------------------------------------------------------------------------------------------------
 
 const getUserData = async function (req, res) {
 
@@ -132,7 +143,7 @@ const getUserData = async function (req, res) {
     res.status(200).send({ status: true, message: `Successlly fetched user details`, data: userDetail })
 }
 
-
+//--------------------------------------------------------------------------------------------------------
 
 const updateUserData = async function (req, res) {
 
@@ -150,8 +161,8 @@ const updateUserData = async function (req, res) {
         return res.status(400).send({ status: false, msg: `Unauthorised Access` })
     }
     const userFound = await userModel.findOne({ _id: userId, isDeleted: false })
-    
-    
+
+
     if (!userFound) {
         return res.status(400).send({ status: false, message: `No user exist` })
     }
@@ -165,23 +176,23 @@ const updateUserData = async function (req, res) {
             obj.lname = lname
         }
         if (email) {
-            if(userFound.email === email){
-                return res.status(400).send({status:false, msg:`email already reg`})
-                }
-                if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.trim()))) {
-                    return res.status(400).send({ status: false, message: `Enter a valid email address` })
-                }
+            if (userFound.email === email) {
+                return res.status(400).send({ status: false, msg: `email already reg` })
+            }
+            if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.trim()))) {
+                return res.status(400).send({ status: false, message: `Enter a valid email address` })
+            }
             obj.email = email
         }
         if (phone) {
-            if(userFound.phone === phone){
-                return res.status(400).send({status:false, msg:`phone already reg`})
+            if (userFound.phone === phone) {
+                return res.status(400).send({ status: false, msg: `phone already reg` })
             }
-            
+
             if (!(validNumber.test(phone))) {
                 return res.status(400).send({ status: false, message: "Please Provide validNumber " })
             }
-        
+
             obj.phone = phone
         }
 
@@ -192,7 +203,7 @@ const updateUserData = async function (req, res) {
 
 }
 
-    module.exports = { registerUser, Login, getUserData, updateUserData }
+module.exports = { registerUser, Login, getUserData, updateUserData }
 
 
 

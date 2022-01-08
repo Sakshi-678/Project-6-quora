@@ -29,6 +29,12 @@ const createquestion = async (req, res) => {
         if (!checkUser) {
             return res.status(400).send({ status: false, msg: 'you are not a valid user' })
         }
+        if(checkUser.creditScore<1){
+            return res.status(400).send({ status: false, msg: 'you are not able to post the question becoz ur creditScore is 0 or -ve' })
+        }
+        checkUser.creditScore = checkUser.creditScore-100
+        const creditScore = await userModel.findOneAndUpdate({_id:askedBy},checkUser,{new:true})
+        
         const data = await questionModel.create(req.body)
         return res.status(201).send({ status: false, message: "successfully", data })
     }
@@ -36,6 +42,7 @@ const createquestion = async (req, res) => {
         return res.status(500).send({ status: false, msg: err.message })
     }
 }
+//------------------------------------------------------------------------------------------------------
 
 const getQuestions = async (req, res) => {
     try {
@@ -83,6 +90,8 @@ const getQuestions = async (req, res) => {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
+//-----------------------------------------------------------------------------------------------------------
+
 
 const getquestionId = async (req, res) => {
     try {
@@ -105,6 +114,8 @@ const getquestionId = async (req, res) => {
         return res.status(500).send({ status: false, message: err.message });
     }
 }
+
+//----------------------------------------------------------------------------------------------------------
 
 
 const updatequestion = async (req, res) => {
@@ -139,6 +150,7 @@ const updatequestion = async (req, res) => {
         return res.status(500).send({ status: false, msg: err.message })
     }
 }
+//-----------------------------------------------------------------------------------------------------------
 
 const deleteQuestion = async (req, res) => {
     try {
@@ -163,8 +175,5 @@ const deleteQuestion = async (req, res) => {
         return res.status(500).send({ status: false, message: "Something went wrong", Error: err.message })
     }
 }
-
-
-
 
 module.exports = { createquestion, getQuestions, getquestionId, updatequestion, deleteQuestion }

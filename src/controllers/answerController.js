@@ -1,6 +1,7 @@
 const answerModel = require('../models/answerModel')
 const ObjectId = require('mongoose').Types.ObjectId;
-
+const userModel = require("../models/userModel")
+const questionModel = require("../models/questionModel")
 
 
 const createanswer = async (req, res) => {
@@ -18,6 +19,15 @@ const createanswer = async (req, res) => {
         if (req.userId != answeredBy) {
             return res.status(400).send({ status: false, message: "Sorry you are not authorized to do this action" })
         }
+        const questionDetail = await questionModel.findOne({_id:questionId}).lean()
+        console.log(questionDetail)
+        if(questionDetail.askedBy==answeredBy){
+            return res.status(400).send({ status: false, message: "YOu cannot create answer for ur own question" })
+        }
+        const userDetail = await userModel.findOne({_id:answeredBy})
+        userDetail.creditScore = userDetail.creditScore+200
+        await userModel.findOneAndUpdate({_id:answeredBy},userDetail)
+        
         const data = await answerModel.create(req.body)
         return res.status(201).send({ status: true, message: "successfully", data })
 
@@ -26,6 +36,7 @@ const createanswer = async (req, res) => {
         return res.status(500).send({ status: false, msg: err.message })
     }
 }
+//---------------------------------------------------------------------------------------------------------
 
 const getdetails = async (req, res) => {
     try {
@@ -34,9 +45,7 @@ const getdetails = async (req, res) => {
         if (!checkId) {
             return res.status(400).send({ status: false, message: "Please provide a valid questionId " })
         }
-
-        const answer = await answerModel.find({ questionId: questionId });
-
+        const answer = await answerModel.find({ questionId: questionId }).sort({createdAt:-1});
         if (!answer) {
             return res.status(404).send({ status: false, message: `answer does not exit` })
         }
@@ -46,6 +55,8 @@ const getdetails = async (req, res) => {
         return res.status(500).send({ status: false, message: err.message });
     }
 }
+
+//--------------------------------------------------------------------------------------------------------
 
 
 const updateanswer = async (req, res) => {
@@ -73,6 +84,7 @@ const updateanswer = async (req, res) => {
         return res.status(500).send({ status: false, msg: err.message })
     }
 }
+//----------------------------------------------------------------------------------------------------------
 
 const deleteanswer = async (req, res) => {
     try {
@@ -113,5 +125,4 @@ const deleteanswer = async (req, res) => {
 
 }
 
-
- module.exports = { createanswer, getdetails, updateanswer, deleteanswer }
+module.exports = { createanswer, getdetails, updateanswer, deleteanswer }
