@@ -92,6 +92,7 @@ const deleteanswer = async (req, res) => {
         let userbody = req.body
         let { userId, questionId } = userbody
         checkId = ObjectId.isValid(params)
+        
         if (!checkId) {
             return res.status(400).send({ status: false, message: "Please provide a valid answerId " })
         }
