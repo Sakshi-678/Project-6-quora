@@ -9,4 +9,5 @@ const userSchema = new mongoose.Schema({
     password: {type: String, required: "Password is Required"},
     creditScore:{type:Number, required:"credit score is Required"}
 },{timestamps:true});
+
     module.exports = mongoose.model('myUser',userSchema)
