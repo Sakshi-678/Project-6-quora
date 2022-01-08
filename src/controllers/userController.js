@@ -106,6 +106,7 @@ const Login = async (req, res) => {
         if (!validPassword) {
             return res.status(400).send({ status: false, message: " Invalid password" })
         }
+        
         let payload = { userId: _id }
         const generatedToken = jwt.sign(payload, "Exodus", { expiresIn: '160m' })
 
